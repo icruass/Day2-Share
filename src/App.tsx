@@ -1,21 +1,17 @@
-import React, { useRef } from "react";
-import { useSprings, animated } from "@react-spring/web";
-import { useDrag } from "@use-gesture/react";
-import _ from "lodash";
-import { Pages, Page } from "./components/Pages";
-import Menu from "./components/Menu";
+import React from 'react';
+import { Pages, Page } from './components/Pages';
+
+import { usePagesStore } from './components/Pages/store';
 
 export default function App() {
-  return (
-    <div>
-      <Pages>
-        <Page>
-          <Menu />
-        </Page>
-        <Page>
-          <Menu />
-        </Page>
-      </Pages>
-    </div>
-  );
+	return (
+		<div>
+			<Pages>
+				<Page>
+					<div onClick={() => usePagesStore.getState().navigationTo(1)}>next page</div>
+				</Page>
+				<Page>2</Page>
+			</Pages>
+		</div>
+	);
 }
