@@ -35,10 +35,11 @@ export const getState = (set, get) => {
     },
 
     navigationTo: (n: number | string) => {
-      const { pagesNameMap, pagesIndexMap } = get() as State;
+      const { currentPageIndex: fromPageIndex, pagesNameMap, pagesIndexMap } = get() as State;
       const navigationToPageIndex = typeof n === 'number' ? n : pagesNameMap[n].index;
       const currentPage = pagesIndexMap[navigationToPageIndex];
       set({ currentPageIndex: navigationToPageIndex, currentPage });
+      Event.emit('navigationTo', { toPageIndex: navigationToPageIndex, fromPageIndex });
     },
 
     next: () => {
