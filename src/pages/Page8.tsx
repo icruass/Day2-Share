@@ -5,15 +5,6 @@ import ContentCard from '../components/ContentCard';
 import PageIndex from '../components/PageIndex';
 
 function Page() {
-	React.useEffect(() => {
-		const unSub = PubSubInstance.subscribe((val) => {
-			alert(val);
-		});
-		return () => {
-			unSub();
-		};
-	}, []);
-
 	return (
 		<div
 			style={{
@@ -79,6 +70,10 @@ function Page() {
 				<Grid item>
 					<PubComp />
 				</Grid>
+
+				<Grid item>
+					<SubComp />
+				</Grid>
 			</Grid>
 		</div>
 	);
@@ -128,7 +123,6 @@ class PubSub<T> {
 				callback(val);
 			}
 		}
-		console.log(this);
 		this.subscriptions.add(subscription);
 
 		const unsubscribe = () => {
@@ -162,8 +156,7 @@ const PubComp = () => {
 				}}
 				sx={{
 					'& input, & label': { color: '#fff !important' },
-					'& .MuiInputBase-root input': { paddingTop: '22px !important' },
-					'& .MuiInputBase-root.Mui-focused input': { paddingTop: '32px !important' },
+					'& .MuiInputBase-root input': { paddingTop: '32px !important' },
 					'& .MuiInputBase-root:after': {
 						borderColor: '#fff !important'
 					}
@@ -186,6 +179,30 @@ const PubComp = () => {
 			>
 				发布
 			</Button>
+		</div>
+	);
+};
+
+const SubComp = () => {
+	const [subV, setSubV] = React.useState([]);
+
+	React.useEffect(() => {
+		const unSub = PubSubInstance.subscribe((val) => {
+			if (val) {
+				setSubV((pre) => [val, ...pre]);
+			}
+		});
+		return () => {
+			unSub();
+		};
+	}, []);
+
+	return (
+		<div>
+			{subV.length > 0 && <div>我收到消息了,消息为: </div>}
+			{subV.map((item) => {
+				return <div>{item}</div>;
+			})}
 		</div>
 	);
 };
