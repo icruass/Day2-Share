@@ -19,10 +19,13 @@ export const getState = (set, get) => {
 
     pagesIndexMap: {} as Record<string, Page>,
 
+    pageIndexUsed: [0],
+
     setCurrentPageIndex: (i: number) => {
-      const { pagesIndexMap } = get() as State;
+      const { pagesIndexMap, pageIndexUsed } = get() as State;
       const currentPage = pagesIndexMap[i];
-      set({ currentPageIndex: i, currentPage });
+      const newpageIndexUsed = [...pageIndexUsed, i];
+      set({ currentPageIndex: i, currentPage, pageIndexUsed: newpageIndexUsed });
     },
 
     registerPage: (options: Page) => {
@@ -35,31 +38,28 @@ export const getState = (set, get) => {
     },
 
     navigationTo: (n: number | string) => {
-      const { currentPageIndex: fromPageIndex, pagesNameMap, pagesIndexMap } = get() as State;
+      const { currentPageIndex: fromPageIndex, pagesNameMap, setCurrentPageIndex } = get() as State;
       const navigationToPageIndex = typeof n === 'number' ? n : pagesNameMap[n].index;
-      const currentPage = pagesIndexMap[navigationToPageIndex];
-      set({ currentPageIndex: navigationToPageIndex, currentPage });
+      setCurrentPageIndex(navigationToPageIndex);
       Event.emit('navigationTo', { toPageIndex: navigationToPageIndex, fromPageIndex });
     },
 
     next: () => {
-      const { currentPageIndex, pagesIndexMap } = get() as State;
+      const { currentPageIndex, pagesIndexMap, setCurrentPageIndex } = get() as State;
       const isMaxPageIndex = currentPageIndex >= Object.keys(pagesIndexMap).length - 1;
       if (isMaxPageIndex) return console.log('Max page index');
       const nextIndex = Number(currentPageIndex) + 1;
-      const currentPage = pagesIndexMap[nextIndex];
       Event.emit('next', { currentIndex: currentPageIndex, nextIndex });
-      set({ currentPageIndex: nextIndex, currentPage });
+      setCurrentPageIndex(nextIndex);
     },
 
     pre: () => {
-      const { currentPageIndex, pagesIndexMap } = get() as State;
+      const { currentPageIndex, setCurrentPageIndex } = get() as State;
       const isMinPageIndex = currentPageIndex <= 0;
       if (isMinPageIndex) return console.log('Min page index');
       const preIndex = Number(currentPageIndex) - 1;
-      const currentPage = pagesIndexMap[preIndex];
       Event.emit('pre', { currentIndex: currentPageIndex, preIndex });
-      set({ currentPageIndex: preIndex, currentPage });
+      setCurrentPageIndex(preIndex);
     }
   }
 };

@@ -3,9 +3,8 @@ import { Highlight } from "prism-react-renderer";
 
 import styles from "./index.less";
 
-export type CodeBoxProps = {
+export type CodeBoxProps = React.HTMLProps<HTMLPreElement> & {
   children?: any;
-  style?: React.CSSProperties;
 };
 
 function CodeBox(props: CodeBoxProps) {

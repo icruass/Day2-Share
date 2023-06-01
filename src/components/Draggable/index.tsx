@@ -2,25 +2,64 @@ import React from "react";
 import { useSpring, animated } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 
-export type DraggableProps = {
+export type DraggableProps = React.HTMLProps<any> & {
   children?: any;
   style?: React.CSSProperties;
+  preventDefault?: boolean;
+  filterTaps?: boolean;
+  stopPropagation?: boolean;
+  component?: any;
 };
 
 function Draggable(props: DraggableProps) {
-  const { children, style } = props;
+  const {
+    children,
+    style,
+    component = "div",
+    preventDefault = false,
+    filterTaps = true,
+    stopPropagation = true,
+  } = props;
 
-  const [{ x, y }, api] = useSpring(() => ({ x: 0, y: 0 }));
+  const dragActive = React.useRef(false);
 
-  const bind = useDrag(({ offset: [x, y] }) => api.start({ x, y }), {
-    preventDefault: true,
-    filterTaps: true,
-  });
+  const [{ x, y }, api] = useSpring(() => ({
+    x: 0,
+    y: 0,
+  }));
+
+  const bind = useDrag(
+    ({ offset: [x, y], active }) => {
+      dragActive.current = active;
+      api.start(() => {
+        return { x, y };
+      });
+    },
+    {
+      preventDefault,
+      filterTaps,
+    }
+  );
+
+  const bindProps = bind();
+
+  const onPointerMove = (e: any) => {
+    if (stopPropagation && dragActive.current) {
+      e.stopPropagation();
+    }
+    bindProps.onPointerMove(e);
+  };
+
+  const Comp = React.useRef(animated[component]).current;
 
   return (
-    <animated.span {...bind()} style={{ ...style, x, y }}>
+    <Comp
+      {...bindProps}
+      onPointerMove={onPointerMove}
+      style={{ display: "inline-block", ...style, x, y }}
+    >
       {children}
-    </animated.span>
+    </Comp>
   );
 }
 
